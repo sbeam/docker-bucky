@@ -1,14 +1,20 @@
-FROM gregory90/nodejs:latest
+FROM nodejs:latest
 
-RUN wget https://github.com/HubSpot/BuckyServer/archive/v0.3.0.tar.gz -O /opt/BuckyServer.tar.gz && \
-    tar xvf /opt/BuckyServer.tar.gz -C /opt
+ENV BUCKY_VERSION 0.4.1
 
-RUN cd /opt/BuckyServer-0.3.0 && npm install
+RUN wget https://github.com/HubSpot/BuckyServer/archive/v$BUCKY_VERSION.tar.gz -O /opt/BuckyServer.tar.gz && \
+    mkdir -p /opt/BuckyServer && \
+    tar xvf --strip-components=1 /opt/BuckyServer.tar.gz -C /opt/BuckyServer
 
-ADD default.yml /opt/BuckyServer-0.3.0/config/default.yml.tpl
-WORKDIR /opt/BuckyServer-0.3.0
+RUN cd /opt/BuckyServer && npm install
 
-ADD run.sh /opt/BuckyServer-0.3.0/run.sh
-RUN chmod +x /opt/BuckyServer-0.3.0/run.sh
+ADD default.yaml /opt/BuckyServer/config/default.yaml
+RUN sed -i '' '/{{[A-Z]+}}/ { \
+  s|{{INFLUXDB_DATABASE}}|$INFLUXDB_DATABASE| \
+  s|{{INFLUXDB_USERNAME}}|$INFLUXDB_USERNAME| \
+  s|{{INFLUXDB_PASSWORD}}|$INFLUXDB_PASSWORD| \
+}' /opt/BuckyServer/config/default.yaml
 
-CMD ["./run.sh"]
+WORKDIR /opt/BuckyServer
+
+CMD ["./start.js"]
