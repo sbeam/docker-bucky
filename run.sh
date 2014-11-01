@@ -1,5 +1,6 @@
 #!/bin/bash
 
-sed -e "s/{{STATSD_HOST}}/$STATSD_HOST/" -e "s/{{STATSD_PORT}}/$STATSD_PORT/" config/default.yml.tpl > config/default.yaml
+sed -e "s/{{INFLUXDB_DATABASE}}/$INFLUXDB_DATABASE/"  -e "s/{{INFLUXDB_USERNAME}}/$INFLUXDB_USERNAME/" -e "s/{{INFLUXDB_PASSWORD}}/$INFLUXDB_PASSWORD/" config/default.yaml.template > config/default.yaml
 
 ./start.js
+
